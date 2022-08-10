@@ -1,23 +1,46 @@
-import { AxiosInstance, AxiosResponse, Method } from 'axios';
+import { AxiosInstance, AxiosResponse } from 'axios';
 import { axiosRequest, getAxiosInstance } from '.';
-import { EAPI, IQueryFilterParams, MarvelEndpoints } from '../types/Api';
-import { MarvelCharacter, MarvelResponse } from '../types/MarvelTypes';
+import { EAPI, IAxiosParams, IQueryFilterParams } from '../types/Api';
+import { IMarvelComics, MarvelCharacter, MarvelResponse } from '../types/MarvelTypes';
+import { MarvelEndpoints } from '../utils/api-utils';
 
 const marvelInstance: AxiosInstance = getAxiosInstance(EAPI.MARVEL);
 
-const marvelRequest = <T>(method: Method, params: any): Promise<AxiosResponse<T>> => {
-  return axiosRequest<T>(marvelInstance, method, MarvelEndpoints.HEROES, params);
+const marvelRequest = <T>(axiosParams: IAxiosParams): Promise<AxiosResponse<T>> => {
+  return axiosRequest<T>(marvelInstance, axiosParams);
 };
 
-export const getMarvelCharacters = async (
-  params: IQueryFilterParams
+export const fetchMarvelCharacters = async (
+  filterParams?: IQueryFilterParams
 ): Promise<MarvelCharacter[]> => {
-  const charactersResponse = await marvelRequest<MarvelResponse<MarvelCharacter>>('GET', {
-    ...params,
-    apikey: process.env.REACT_APP_MARVEL_API_PUBLIC_KEY as string
+  const charactersResponse = await marvelRequest<MarvelResponse<MarvelCharacter>>({
+    method: 'GET',
+    url: MarvelEndpoints.CHARACTERS,
+    params: {
+      ...filterParams,
+      apikey: process.env.REACT_APP_MARVEL_API_PUBLIC_KEY as string
+    }
   });
 
   const characters: MarvelCharacter[] = charactersResponse.data.data.results;
 
   return characters;
+};
+
+export const fetchComicsByCharacterID = async (
+  id: number,
+  filterParams?: IQueryFilterParams
+): Promise<Array<IMarvelComics>> => {
+  const comicsResponse = await marvelRequest<MarvelResponse<IMarvelComics>>({
+    method: 'GET',
+    url: MarvelEndpoints.comicsByCharacterIDPattern(id),
+    params: {
+      ...filterParams,
+      apikey: process.env.REACT_APP_MARVEL_API_PUBLIC_KEY as string
+    }
+  });
+
+  const comics: Array<IMarvelComics> = comicsResponse.data.data.results;
+
+  return comics;
 };

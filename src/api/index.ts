@@ -1,5 +1,5 @@
-import axios, { AxiosInstance, AxiosResponse, Method } from 'axios';
-import { EAPI } from '../types/Api';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { EAPI, IAxiosParams } from '../types/Api';
 
 export const getAxiosInstance = (api: EAPI): AxiosInstance => {
   return axios.create({
@@ -9,9 +9,7 @@ export const getAxiosInstance = (api: EAPI): AxiosInstance => {
 
 export const axiosRequest = <T>(
   apiInstance: AxiosInstance,
-  method: Method,
-  url: string,
-  params: any
+  { method, url, params }: IAxiosParams
 ): Promise<AxiosResponse<T>> => {
   return apiInstance.request<T>({
     method,

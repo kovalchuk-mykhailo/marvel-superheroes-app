@@ -1,9 +1,13 @@
+import { Method } from 'axios';
+
 export enum EAPI {
   MARVEL = 'https://gateway.marvel.com:443'
 }
 
-export enum MarvelEndpoints {
-  HEROES = '/v1/public/characters'
+export interface IAxiosParams {
+  method: Method;
+  url: string;
+  params: any;
 }
 
 export type TOrderBy = 'name' | 'modified' | '-name' | '-modified';
