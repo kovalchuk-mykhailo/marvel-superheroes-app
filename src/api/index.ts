@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { EAPI, IAxiosParams } from '../types/Api';
+import { EAPI, IAxiosParams } from '../types/api';
 
 export const getAxiosInstance = (api: EAPI): AxiosInstance => {
   return axios.create({
