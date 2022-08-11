@@ -1,3 +1,11 @@
+export interface MarvelResponseData<T> {
+  offset: number;
+  limit: number;
+  total: number;
+  count: number;
+  results: Array<T>;
+}
+
 export interface MarvelResponse<T> {
   code: number;
   status: string;
@@ -5,13 +13,7 @@ export interface MarvelResponse<T> {
   attributionText: string;
   attributionHTML: string;
   etag: string;
-  data: {
-    offset: number;
-    limit: number;
-    total: number;
-    count: number;
-    results: Array<T>;
-  };
+  data: MarvelResponseData<T>;
 }
 
 interface IMarvelImage {
