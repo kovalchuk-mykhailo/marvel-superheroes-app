@@ -4,14 +4,20 @@ import { CharacterRow } from './CharacterRow/CharacterRow';
 
 interface CharactersListProps {
   characters: Array<MarvelCharacter>;
+  textNoCharacters?: string;
 }
 
-export const CharactersList: FunctionComponent<CharactersListProps> = ({ characters }) => {
+export const CharactersList: FunctionComponent<CharactersListProps> = ({
+  characters,
+  textNoCharacters = 'No characters'
+}) => {
   return (
     <div>
-      {characters.map((character) => (
-        <CharacterRow key={character.id} character={character} />
-      ))}
+      {characters.length ? (
+        characters.map((character) => <CharacterRow key={character.id} character={character} />)
+      ) : (
+        <div>{textNoCharacters}</div>
+      )}
     </div>
   );
 };
