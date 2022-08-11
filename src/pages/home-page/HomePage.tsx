@@ -7,8 +7,7 @@ import { CharacterOrderBy, ICharacterFilterParams } from '../../types/api';
 import { MarvelCharacter } from '../../types/marvel';
 
 const defaultParams: ICharacterFilterParams = {
-  orderBy: CharacterOrderBy.dateDesc,
-  nameStartsWith: 'th'
+  orderBy: CharacterOrderBy.dateDesc
 };
 
 const HomePage = () => {
@@ -60,7 +59,7 @@ const HomePage = () => {
       : {
           nameStartsWith: inputText
         };
-    const { nameStartsWith, ...fixedSearchParams } = objectSearchParams;
+    const { nameStartsWith: localNameStartsWith, ...fixedSearchParams } = objectSearchParams;
     const finalParams = { ...fixedSearchParams, ...enteredNameStartsWithParameter };
 
     setUrlSearchParams(new URLSearchParams(finalParams));
@@ -68,7 +67,12 @@ const HomePage = () => {
 
   return (
     <div className="App">
-      <input ref={inputRef} type="text" onChange={handleInputChange} value={inputText} />
+      <input
+        ref={inputRef}
+        type="text"
+        onChange={handleInputChange}
+        value={inputText || nameStartsWith}
+      />
       <button type="button" onClick={handleSearchClick}>
         Search
       </button>
