@@ -20,6 +20,10 @@ const HomePage = () => {
   const [lastSearchedText, setLastSearchedText] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    if (!!nameStartsWith && !inputText) {
+      setInputText(nameStartsWith);
+    }
+
     fetchMarvelCharacters({ ...defaultParams, ...objectSearchParams })
       .then((data) => {
         const charactersWithImage = data.filter(
@@ -67,12 +71,7 @@ const HomePage = () => {
 
   return (
     <div className="App">
-      <input
-        ref={inputRef}
-        type="text"
-        onChange={handleInputChange}
-        value={inputText || nameStartsWith}
-      />
+      <input ref={inputRef} type="text" onChange={handleInputChange} value={inputText} />
       <button type="button" onClick={handleSearchClick}>
         Search
       </button>
