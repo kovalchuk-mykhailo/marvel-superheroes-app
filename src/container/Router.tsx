@@ -3,7 +3,7 @@ import CharacterInfoPage from '../pages/character-info-page/CharacterInfoPage';
 import HomePage from '../pages/home-page/HomePage';
 import NotFoundPage from '../pages/not-found-page/NotFoundPage';
 
-const App = () => {
+const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -16,4 +16,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Router;
