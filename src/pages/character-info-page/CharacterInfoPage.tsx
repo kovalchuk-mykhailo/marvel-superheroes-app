@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 import { Fragment, FunctionComponent, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchComicsByCharacterID } from '../../api/marvel-service';
+import Loader from '../../components/Loader/Loader';
 import useFirstRenderRef from '../../hooks/useFirstRenderRef';
 import { ComicOrderBy } from '../../types/api';
 import { IMarvelComics } from '../../types/marvel';
@@ -10,17 +11,18 @@ export const CharacterInfoPage: FunctionComponent = () => {
   const { characterId } = useParams();
   const [comics, setComics] = useState<Array<IMarvelComics>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<AxiosError>({} as AxiosError);
+  const [error, setError] = useState<AxiosError | undefined>({} as AxiosError);
 
   useFirstRenderRef(() => {
     setIsLoading(true);
 
-    fetchComicsByCharacterID(+(characterId || 0), {
+    fetchComicsByCharacterID(characterId || '', {
       orderBy: ComicOrderBy.title,
-      limit: 2
+      limit: 20
     })
       .then((responseComics) => {
         setComics(responseComics);
+        setError(undefined);
       })
       .catch((error) => {
         setError(error);
@@ -37,8 +39,9 @@ export const CharacterInfoPage: FunctionComponent = () => {
 
         return (
           <Fragment key={comic.id}>
-            <p>{comic.id}</p>
-            <img src={imagePath} alt={`${comic.title} image`} />
+            <p>{comic.title}</p>
+            <p>{comic.description}</p>
+            <img src={imagePath} alt={`${comic.title} image`} style={{ maxHeight: 400 }} />
           </Fragment>
         );
       })
@@ -46,11 +49,9 @@ export const CharacterInfoPage: FunctionComponent = () => {
       <p>No comics found</p>
     );
 
-  const renderLoader = () => <p>Loading...</p>;
-
   return (
     <div>
-      {isLoading ? renderLoader() : renderComics()}
+      {isLoading ? <Loader /> : renderComics()}
       {error && <p>{error.message}</p>}
     </div>
   );
