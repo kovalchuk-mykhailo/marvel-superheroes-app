@@ -1,3 +1,4 @@
+import { Grid } from '@mui/material';
 import { FunctionComponent } from 'react';
 import { MarvelCharacter } from '../../types/marvel';
 import { CharacterRow } from './CharacterRow/CharacterRow';
@@ -12,12 +13,16 @@ export const CharactersList: FunctionComponent<CharactersListProps> = ({
   textNoCharacters = 'No characters'
 }) => {
   return (
-    <div>
+    <Grid container spacing={2}>
       {characters.length ? (
-        characters.map((character) => <CharacterRow key={character.id} character={character} />)
+        characters.map((character) => (
+          <Grid item xs={6} sm={4} md={3} key={character.id}>
+            <CharacterRow character={character} />
+          </Grid>
+        ))
       ) : (
         <div>{textNoCharacters}</div>
       )}
-    </div>
+    </Grid>
   );
 };
