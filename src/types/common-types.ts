@@ -1,3 +1,3 @@
-export interface IVoidFunction {
+export interface ICallbackFunction {
   (): void;
 }

@@ -7,7 +7,7 @@ import Loader from '../../components/Loader/Loader';
 import { PaginationBlock } from '../../components/PaginationBlock/PaginationBlock';
 import useObjectSearchParams from '../../hooks/useObjectSearchParam';
 import { CharacterOrderBy, ICharacterFilterParams, IPageFilterParams } from '../../types/api';
-import { IVoidFunction } from '../../types/common-types';
+import { ICallbackFunction } from '../../types/common-types';
 import { MarvelCharacter, MarvelResponseData } from '../../types/marvel';
 
 const defaultParams: ICharacterFilterParams = {
@@ -39,7 +39,7 @@ const HomePage = () => {
     return !pageString ? DEFAULT_PAGE : +pageString;
   };
 
-  const setDefaultPage: IVoidFunction = () => {
+  const setDefaultPage: ICallbackFunction = () => {
     urlSearchParams.set('page', `${DEFAULT_PAGE}`);
 
     setUrlSearchParams(urlSearchParams);
@@ -105,7 +105,7 @@ const HomePage = () => {
       });
   }, [urlSearchParams.toString()]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     e.preventDefault();
 
     const enteredValue = e.target.value;
@@ -115,7 +115,7 @@ const HomePage = () => {
     }
   };
 
-  const handleSearchClick = (e: React.MouseEvent) => {
+  const handleSearchClick = (e: React.MouseEvent): void => {
     e.preventDefault();
 
     if (error) {
@@ -141,7 +141,7 @@ const HomePage = () => {
     // EXPLORE change params in urlSearchParams
   };
 
-  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number): void => {
     urlSearchParams.set('page', `${value}`);
 
     setUrlSearchParams(urlSearchParams);
