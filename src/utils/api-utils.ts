@@ -1,4 +1,4 @@
 export const MarvelEndpoints = {
   CHARACTERS: '/v1/public/characters',
-  comicsByCharacterIDPattern: (id: number) => `/v1/public/characters/${id}/comics`
+  comicsByCharacterIDPattern: (id: string) => `/v1/public/characters/${id}/comics`
 };

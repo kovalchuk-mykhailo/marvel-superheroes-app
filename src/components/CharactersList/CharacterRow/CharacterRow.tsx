@@ -1,5 +1,9 @@
+import { Button, CardActionArea, CardActions, Link } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
 import { FunctionComponent } from 'react';
-import { Link } from 'react-router-dom';
 import { MarvelCharacter } from '../../../types/marvel';
 
 interface CharacterRowProps {
@@ -11,12 +15,42 @@ export const CharacterRow: FunctionComponent<CharacterRowProps> = ({ character }
   const imagePath = thumbnail.path + '.' + thumbnail.extension;
 
   return (
-    <div>
-      <p>{name}</p>
-      <p>{description}</p>
-      <Link to={`/characters/${id}`}>
-        <img style={{ maxWidth: '100px' }} src={imagePath} alt={`${character.name} image`} />
-      </Link>
-    </div>
+    <Link href={`/characters/${id}`} style={{ textDecoration: 'none' }}>
+      <Card>
+        <CardActionArea>
+          <CardMedia
+            component="img"
+            height="200"
+            image={imagePath}
+            alt={`${character.name} image`}
+          />
+
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {name}
+            </Typography>
+
+            <Typography
+              sx={{
+                display: '-webkit-box',
+                overflow: 'hidden',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 3
+              }}
+              variant="body2"
+              color="text.secondary"
+            >
+              {description}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+
+        <CardActions>
+          <Button size="small" color="primary">
+            View more
+          </Button>
+        </CardActions>
+      </Card>
+    </Link>
   );
 };

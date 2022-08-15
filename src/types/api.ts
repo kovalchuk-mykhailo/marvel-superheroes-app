@@ -7,7 +7,7 @@ export enum EAPI {
 export interface IAxiosParams {
   method: Method;
   url: string;
-  params: any;
+  params: unknown;
 }
 
 export enum CharacterOrderBy {
@@ -38,4 +38,9 @@ export interface ICharacterFilterParams extends ICommonFilterParams {
 export interface IComicFilterParams extends ICommonFilterParams {
   orderBy?: ComicOrderBy;
   titleStartsWith?: string;
+}
+
+export interface IPageFilterParams {
+  limit: number;
+  offset: number;
 }
