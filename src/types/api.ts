@@ -16,6 +16,7 @@ export enum CharacterOrderBy {
   date = 'modified',
   dateDesc = '-modified'
 }
+
 export enum ComicOrderBy {
   title = 'title',
   titleDesc = '-title',

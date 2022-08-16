@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 
-const forbiddenKeys = ['page', 'limit', 'offset', 'name'];
+const forbiddenKeys: Array<string> = ['page', 'limit', 'offset', 'name'];
 
 const useObjectSearchParams = () => {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();

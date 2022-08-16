@@ -1,91 +1,111 @@
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { KeyboardEventHandler, useEffect, useState } from 'react';
 import { fetchMarvelCharacters } from '../../api/marvel-service';
 import { CharactersList } from '../../components/CharactersList/CharactersList';
 import Loader from '../../components/Loader/Loader';
+import { MUISelect } from '../../components/MUISelect/MUISelect';
 import { PaginationBlock } from '../../components/PaginationBlock/PaginationBlock';
 import useObjectSearchParams from '../../hooks/useObjectSearchParam';
-import { CharacterOrderBy, ICharacterFilterParams, IPageFilterParams } from '../../types/api';
-import { ICallbackFunction } from '../../types/common-types';
+import { CharacterOrderBy, IPageFilterParams } from '../../types/api';
+import { ICallbackFunction, StringOrNull } from '../../types/common-types';
 import { MarvelCharacter, MarvelResponseData } from '../../types/marvel';
-
-const defaultParams: ICharacterFilterParams = {
-  orderBy: CharacterOrderBy.dateDesc
-};
-
-const pageRestrictions: IPageFilterParams = {
-  limit: 12,
-  offset: 0
-};
-
-const DEFAULT_PAGE = 1;
+import {
+  DEFAULT_ORDER_BY_PARAM_VALUE,
+  DEFAULT_PAGE_NUMBER,
+  orderByItems,
+  orderByParams,
+  pageRestrictions
+} from '../../utils/home-page-utils';
+import { doesObjectContain } from '../../utils/object-utils';
 
 const HomePage = () => {
   const { objectSearchParams, urlSearchParams, setUrlSearchParams } = useObjectSearchParams();
   const [error, setError] = useState<string>('');
-  const [characters, setCharacters] = useState<Array<MarvelCharacter>>([]);
   const [inputText, setInputText] = useState<string>('');
   const [lastSearchedText, setLastSearchedText] = useState<string | undefined>(undefined);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [characters, setCharacters] = useState<Array<MarvelCharacter>>([]);
+  const [totalPages, setTotalPages] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [orderByValue, setOrderByValue] = useState<CharacterOrderBy>(DEFAULT_ORDER_BY_PARAM_VALUE);
+  const [currentPage, setCurrentPage] = useState<number>(DEFAULT_PAGE_NUMBER);
 
-  console.log('Count: ', totalPages);
-  console.log('urlSearchParams: ', urlSearchParams.toString());
-
-  const getPage = (): number => {
-    const pageString = urlSearchParams.get('page');
-
-    return !pageString ? DEFAULT_PAGE : +pageString;
-  };
-
-  const setDefaultPage: ICallbackFunction = () => {
-    urlSearchParams.set('page', `${DEFAULT_PAGE}`);
+  const setDefaultURLPage: ICallbackFunction = () => {
+    urlSearchParams.set('page', `${DEFAULT_PAGE_NUMBER}`);
 
     setUrlSearchParams(urlSearchParams);
   };
 
+  const getPageNumberFromUrl: () => number = () => {
+    const page: StringOrNull = urlSearchParams.get('page');
+
+    if (typeof page === 'string') {
+      const pageNumber = Number(page);
+
+      if (typeof pageNumber === 'number') {
+        return pageNumber;
+      }
+    }
+
+    return DEFAULT_PAGE_NUMBER;
+  };
+
   useEffect(() => {
-    console.log('FETCHING...');
+    console.log('FETCHING...', objectSearchParams, urlSearchParams.toString());
 
     setIsLoading(true);
-
-    const nameStartsWith = urlSearchParams.get('nameStartsWith');
-
-    if (!!nameStartsWith && !inputText) {
-      setInputText(nameStartsWith);
-    }
 
     const pageParams: IPageFilterParams = {
       ...pageRestrictions
     };
+    const pageNumber: number = getPageNumberFromUrl();
+    const isPageNumberAvailable = pageNumber < 1;
 
-    const page: string | null = urlSearchParams.get('page');
+    if (isPageNumberAvailable) {
+      setDefaultURLPage();
 
-    if (page) {
-      const step = pageRestrictions.limit * (+page - 1);
-
-      pageParams.offset = step;
+      return;
     }
 
-    console.log('objectSearchParams: ', objectSearchParams);
+    const nameStartsWith: StringOrNull = urlSearchParams.get('nameStartsWith');
+    const isNameNew = !!nameStartsWith && (!inputText || lastSearchedText !== nameStartsWith);
+
+    if (isNameNew) {
+      setInputText(nameStartsWith);
+    }
 
     setLastSearchedText(nameStartsWith || '');
 
-    fetchMarvelCharacters({ ...defaultParams, ...objectSearchParams, ...pageParams })
+    const step: number = pageParams.limit * (pageNumber - 1);
+
+    pageParams.offset = step;
+
+    const orderBy: StringOrNull = urlSearchParams.get('orderBy');
+
+    if (orderBy) {
+      orderByParams.orderBy = orderBy as CharacterOrderBy;
+
+      if (doesObjectContain(orderBy, CharacterOrderBy)) {
+        const newOrderBy = orderBy as CharacterOrderBy;
+
+        setOrderByValue(newOrderBy);
+      }
+    }
+
+    fetchMarvelCharacters({ ...objectSearchParams, ...orderByParams, ...pageParams })
       .then((data) => {
         const { total, results }: MarvelResponseData<MarvelCharacter> = data;
-
         const totPag: number = total < 1 ? 1 : Math.ceil(total / pageRestrictions.limit);
+        const isPageAppropriate: boolean = pageNumber > 0 && totPag >= pageNumber;
 
-        setTotalPages(totPag);
-
-        const isPageAvailable: boolean = totPag > +(page ? page : 0);
-
-        if (!isPageAvailable) {
-          setDefaultPage();
+        if (!isPageAppropriate) {
+          setDefaultURLPage();
+          setCurrentPage(DEFAULT_PAGE_NUMBER);
+        } else {
+          setCurrentPage(pageNumber);
         }
 
+        setTotalPages(totPag);
         setError('');
         setCharacters(results);
       })
@@ -97,8 +117,9 @@ const HomePage = () => {
         }
 
         setTotalPages(1);
-
+        setCurrentPage(DEFAULT_PAGE_NUMBER);
         setError(`${response?.data.status || error?.message}`);
+        setOrderByValue(DEFAULT_ORDER_BY_PARAM_VALUE);
       })
       .finally(() => {
         setIsLoading(false);
@@ -115,17 +136,12 @@ const HomePage = () => {
     }
   };
 
-  const handleSearchClick = (e: React.MouseEvent): void => {
-    e.preventDefault();
-
+  const applySearch: ICallbackFunction = () => {
     if (error) {
       urlSearchParams.forEach((val, key) => {
         urlSearchParams.delete(key);
       });
     } else if (lastSearchedText === inputText) {
-      console.log('lastSearchedText: ', typeof lastSearchedText);
-      console.log('inputText: ', typeof inputText);
-
       return;
     }
 
@@ -136,18 +152,47 @@ const HomePage = () => {
     }
 
     urlSearchParams.delete('page');
-
-    setUrlSearchParams(urlSearchParams);
-    // EXPLORE change params in urlSearchParams
-  };
-
-  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number): void => {
-    urlSearchParams.set('page', `${value}`);
+    urlSearchParams.set('orderBy', orderByValue);
 
     setUrlSearchParams(urlSearchParams);
   };
 
-  const renderSearchBlock = () => {
+  const handleSearchClick = (e: React.MouseEvent): void => {
+    e.preventDefault();
+
+    applySearch();
+  };
+
+  const handlePaginationChange = (event: React.ChangeEvent<unknown>, clickedPage: number): void => {
+    if (clickedPage === currentPage) {
+      return;
+    }
+
+    urlSearchParams.set('page', `${clickedPage}`);
+
+    setUrlSearchParams(urlSearchParams);
+    setCurrentPage(clickedPage);
+  };
+
+  const handleOrderByItemChange = (event: SelectChangeEvent<string>): void => {
+    setOrderByValue(event.target.value as CharacterOrderBy);
+
+    urlSearchParams.set('orderBy', event.target.value);
+    setUrlSearchParams(urlSearchParams);
+  };
+
+  const handleSelectOnKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
+    switch (event.key) {
+      case 'Enter':
+        applySearch();
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const renderSearchBlock: () => JSX.Element = () => {
     return (
       <Box
         sx={{
@@ -164,6 +209,14 @@ const HomePage = () => {
           onChange={handleInputChange}
           type="search"
           style={{ margin: '1rem' }}
+          onKeyDown={handleSelectOnKeyDown}
+        />
+
+        <MUISelect
+          items={orderByItems}
+          currentItem={orderByValue}
+          label="Order by"
+          onChange={handleOrderByItemChange}
         />
 
         <Button variant="contained" onClick={handleSearchClick}>
@@ -186,8 +239,8 @@ const HomePage = () => {
       {isLoading ? <Loader /> : <CharactersList characters={characters} />}
 
       <PaginationBlock
-        defaultPage={DEFAULT_PAGE}
-        page={getPage()}
+        defaultPage={DEFAULT_PAGE_NUMBER}
+        page={currentPage}
         onChange={handlePaginationChange}
         count={totalPages}
         color="primary"
