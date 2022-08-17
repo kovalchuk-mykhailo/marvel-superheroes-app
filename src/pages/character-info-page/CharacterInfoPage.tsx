@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { fetchComicsByCharacterID } from '../../api/marvel-service';
 import ComicsList from '../../components/ComicsList/ComicsList';
 import Loader from '../../components/Loader/Loader';
+import NavigationBackButton from '../../components/NavigationBackButton/NavigationBackButton';
 import useFirstRenderRef from '../../hooks/useFirstRenderRef';
 import { MarvelComic } from '../../types/marvel';
 import { characterInfoPageRestrictions } from '../../utils/character-info-page-utils';
@@ -32,15 +33,19 @@ export const CharacterInfoPage: FunctionComponent = () => {
   });
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        m: '2rem'
-      }}
-    >
-      {isLoading ? <Loader /> : <ComicsList comics={comics} />}
-      {error && <p>{error.message}</p>}
+    <Box sx={{ m: '1rem' }}>
+      <NavigationBackButton sx={{ m: '1rem' }} />
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          m: '2rem'
+        }}
+      >
+        {isLoading ? <Loader /> : <ComicsList comics={comics} />}
+        {error && <p>{error.message}</p>}
+      </Box>
     </Box>
   );
 };
