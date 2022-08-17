@@ -8,7 +8,7 @@ export const orderByParams: ICharacterFilterParams = {
 };
 
 export const pageRestrictions: IPageFilterParams = {
-  limit: 12,
+  limit: 15,
   offset: 0
 };
 

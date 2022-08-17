@@ -1,25 +1,24 @@
+import { Box } from '@mui/material';
 import { AxiosError } from 'axios';
-import { Fragment, FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchComicsByCharacterID } from '../../api/marvel-service';
+import ComicsList from '../../components/ComicsList/ComicsList';
 import Loader from '../../components/Loader/Loader';
 import useFirstRenderRef from '../../hooks/useFirstRenderRef';
-import { ComicOrderBy } from '../../types/api';
-import { IMarvelComics } from '../../types/marvel';
+import { MarvelComic } from '../../types/marvel';
+import { characterInfoPageRestrictions } from '../../utils/character-info-page-utils';
 
 export const CharacterInfoPage: FunctionComponent = () => {
   const { characterId } = useParams();
-  const [comics, setComics] = useState<Array<IMarvelComics>>([]);
+  const [comics, setComics] = useState<Array<MarvelComic>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<AxiosError | undefined>({} as AxiosError);
 
   useFirstRenderRef(() => {
     setIsLoading(true);
 
-    fetchComicsByCharacterID(characterId || '', {
-      orderBy: ComicOrderBy.title,
-      limit: 20
-    })
+    fetchComicsByCharacterID(characterId || '', characterInfoPageRestrictions)
       .then((responseComics) => {
         setComics(responseComics);
         setError(undefined);
@@ -32,28 +31,17 @@ export const CharacterInfoPage: FunctionComponent = () => {
       });
   });
 
-  const renderComics = () =>
-    comics.length ? (
-      comics.map((comic) => {
-        const imagePath = comic.thumbnail.path + '.' + comic.thumbnail.extension;
-
-        return (
-          <Fragment key={comic.id}>
-            <p>{comic.title}</p>
-            <p>{comic.description}</p>
-            <img src={imagePath} alt={`${comic.title} image`} style={{ maxHeight: 400 }} />
-          </Fragment>
-        );
-      })
-    ) : (
-      <p>No comics found</p>
-    );
-
   return (
-    <div>
-      {isLoading ? <Loader /> : renderComics()}
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        m: '2rem'
+      }}
+    >
+      {isLoading ? <Loader /> : <ComicsList comics={comics} />}
       {error && <p>{error.message}</p>}
-    </div>
+    </Box>
   );
 };
 

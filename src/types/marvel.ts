@@ -29,7 +29,7 @@ export interface MarvelCharacter {
   // ... Data you're gonna use
 }
 
-export interface IMarvelComics {
+export interface MarvelComic {
   id: number;
   digitalId: number;
   title: string;
