@@ -179,6 +179,7 @@ const HomePage = () => {
 
     urlSearchParams.set('orderBy', event.target.value);
     setUrlSearchParams(urlSearchParams);
+    setDefaultURLPage();
   };
 
   const handleSelectOnKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {

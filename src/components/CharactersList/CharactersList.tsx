@@ -16,7 +16,7 @@ export const CharactersList: FunctionComponent<CharactersListProps> = ({
     <Grid container spacing={2}>
       {characters.length ? (
         characters.map((character) => (
-          <Grid item xs={6} sm={4} md={3} key={character.id}>
+          <Grid item xs={6} sm={4} md={2.4} key={character.id}>
             <CharacterRow character={character} />
           </Grid>
         ))

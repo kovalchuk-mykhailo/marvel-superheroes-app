@@ -1,12 +1,7 @@
 import { AxiosInstance, AxiosResponse } from 'axios';
 import { axiosRequest, getAxiosInstance } from '.';
 import { EAPI, IAxiosParams, ICharacterFilterParams, IComicFilterParams } from '../types/api';
-import {
-  IMarvelComics,
-  MarvelCharacter,
-  MarvelResponse,
-  MarvelResponseData
-} from '../types/marvel';
+import { MarvelCharacter, MarvelComic, MarvelResponse, MarvelResponseData } from '../types/marvel';
 import { MarvelEndpoints } from '../utils/api-utils';
 
 const marvelInstance: AxiosInstance = getAxiosInstance(EAPI.MARVEL);
@@ -35,8 +30,8 @@ export const fetchMarvelCharacters = async (
 export const fetchComicsByCharacterID = async (
   id: string,
   filterParams?: IComicFilterParams
-): Promise<Array<IMarvelComics>> => {
-  const comicsResponse = await marvelRequest<MarvelResponse<IMarvelComics>>({
+): Promise<Array<MarvelComic>> => {
+  const comicsResponse = await marvelRequest<MarvelResponse<MarvelComic>>({
     method: 'GET',
     url: MarvelEndpoints.comicsByCharacterIDPattern(id),
     params: {
@@ -45,7 +40,7 @@ export const fetchComicsByCharacterID = async (
     }
   });
 
-  const comics: Array<IMarvelComics> = comicsResponse.data.data.results;
+  const comics: Array<MarvelComic> = comicsResponse.data.data.results;
 
   return comics;
 };
