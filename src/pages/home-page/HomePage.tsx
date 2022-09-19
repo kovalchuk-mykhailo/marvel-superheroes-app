@@ -3,7 +3,6 @@ import { AxiosError } from 'axios';
 import React, { KeyboardEventHandler, useEffect, useState } from 'react';
 import { fetchMarvelCharacters } from '../../api/marvel-service';
 import { CharactersList } from '../../components/CharactersList/CharactersList';
-import Loader from '../../components/Loader/Loader';
 import { MUISelect } from '../../components/MUISelect/MUISelect';
 import { PaginationBlock } from '../../components/PaginationBlock/PaginationBlock';
 import useObjectSearchParams from '../../hooks/useObjectSearchParam';
@@ -20,7 +19,11 @@ import {
 import { doesObjectContain } from '../../utils/object-utils';
 
 const HomePage = () => {
+  // const charactersState = useAppSelector(selectCharactersState);
+  // const dispatch = useAppDispatch();
   const { objectSearchParams, urlSearchParams, setUrlSearchParams } = useObjectSearchParams();
+  // {...logic}
+
   const [error, setError] = useState<string>('');
   const [inputText, setInputText] = useState<string>('');
   const [lastSearchedText, setLastSearchedText] = useState<string | undefined>(undefined);
@@ -50,6 +53,10 @@ const HomePage = () => {
     return DEFAULT_PAGE_NUMBER;
   };
 
+  // console.log('charactersState:: ', JSON.stringify(charactersState));
+  console.log('urlSearchParams.toString():: ', urlSearchParams.toString());
+  console.log('props:: ', isLoading, inputText, lastSearchedText);
+
   useEffect(() => {
     console.log('FETCHING...', objectSearchParams, urlSearchParams.toString());
 
@@ -59,9 +66,9 @@ const HomePage = () => {
       ...pageRestrictions
     };
     const pageNumber: number = getPageNumberFromUrl();
-    const isPageNumberAvailable = pageNumber < 1;
+    const isPageNumberUnavailable = pageNumber < 1;
 
-    if (isPageNumberAvailable) {
+    if (isPageNumberUnavailable) {
       setDefaultURLPage();
 
       return;
@@ -97,6 +104,17 @@ const HomePage = () => {
         const { total, results }: MarvelResponseData<MarvelCharacter> = data;
         const totPag: number = total < 1 ? 1 : Math.ceil(total / pageRestrictions.limit);
         const isPageAppropriate: boolean = pageNumber > 0 && totPag >= pageNumber;
+
+        // dispatch(
+        //   setPaginatedCharacters({
+        //     characters: results,
+        //     pagination: {
+        //       totalPages: totPag,
+        //       currentPage: pageNumber
+        //     }
+        //   })
+        // );
+        // setIsLoading(false);
 
         if (!isPageAppropriate) {
           setDefaultURLPage();
@@ -151,7 +169,7 @@ const HomePage = () => {
       urlSearchParams.set('nameStartsWith', inputText);
     }
 
-    urlSearchParams.delete('page');
+    urlSearchParams.set('page', `${DEFAULT_PAGE_NUMBER}`);
     urlSearchParams.set('orderBy', orderByValue);
 
     setUrlSearchParams(urlSearchParams);
@@ -237,7 +255,7 @@ const HomePage = () => {
     >
       {renderSearchBlock()}
 
-      {isLoading ? <Loader /> : <CharactersList characters={characters} />}
+      {<CharactersList characters={characters} />}
 
       <PaginationBlock
         defaultPage={DEFAULT_PAGE_NUMBER}

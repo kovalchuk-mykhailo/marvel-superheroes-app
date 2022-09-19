@@ -7,8 +7,10 @@ import Router from './router/Router';
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <div>
+    {/* <Provider store={store}> */}
     <MarvelAppBar />
     <Router />
+    {/* </Provider> */}
   </div>
 );
 
